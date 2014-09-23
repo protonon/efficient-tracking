@@ -1,14 +1,23 @@
-var express = require('express');
-var ws = require('websocket.io');
+var express = require('express'),
+    ws = require('websocket.io'),
+    redis = require('redis');
 
 var app = express();
-
 var httpServer = app.listen(8080, function () {
     console.log('Listening on port %d', httpServer.address().port);
 });
 
 var wsServer = ws.attach(httpServer);
+var redisClient = redis.createClient();
 
+
+// Redis
+redisClient.on("error", function (err) {
+    console.log("Error " + err);
+});
+
+
+// Express
 app.set('views', './public/views');
 app.use(express.static(__dirname + '/public'));
 
@@ -19,16 +28,18 @@ app.get('/', function(req, res) {
     res.render('index');
 });
 
+// Websocket
+wsServer.on('connection', function (socket) {
+    var id = Math.ceil(Math.random() * 10000);
+    console.log('Socke open. ID: ' + id);
 
-wsServer.on('connection', function (client) {
-    console.log('connected');
-
-    client.on('message', function (data) {
-        console.log(data);
+    socket.on('message', function (data) {
+        redisClient.lpush(id, data, redis.print);
     });
 
-    client.on('close', function () {
-        console.log('closed');
-    })
+    socket.on('close', function () {
+        redisClient.del(socket.id);
+        console.log('Socket closed. Bye!');
+    });
 
 });

@@ -5,7 +5,6 @@
   "dependencies": {
     "ejs": "^1.0.0",
     "express": "4.9.x",
-    "jade": "^1.7.0",
-    "ws": "0.4.x"
+    "websocket.io": "^0.2.1"
   }
 }
