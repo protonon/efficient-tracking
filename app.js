@@ -1,9 +1,13 @@
 var express = require('express');
+var ws = require('websocket.io');
+
 var app = express();
 
-var server = app.listen(8080, function () {
-    console.log('Listening on port %d', server.address().port);
+var httpServer = app.listen(8080, function () {
+    console.log('Listening on port %d', httpServer.address().port);
 });
+
+var wsServer = ws.attach(httpServer);
 
 app.set('views', './public/views');
 app.use(express.static(__dirname + '/public'));
@@ -16,3 +20,15 @@ app.get('/', function(req, res) {
 });
 
 
+wsServer.on('connection', function (client) {
+    console.log('connected');
+
+    client.on('message', function (data) {
+        console.log(data);
+    });
+
+    client.on('close', function () {
+        console.log('closed');
+    })
+
+});

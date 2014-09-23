@@ -1,5 +1,7 @@
 // For more information http://diveintohtml5.info/geolocation.html
 
+var ws = new WebSocket("ws://localhost:8080");
+
 var locationHandler = {
     gmap: null,
     markers: [],
@@ -18,12 +20,12 @@ var locationHandler = {
         }, 10000);
     },
 
-    printCoords: function (position) {
+    sendCoords: function (position) {
         var latitude = position.coords.latitude;
         var longitude = position.coords.longitude;
         var accuracy = position.coords.accuracy;
         var speed = position.coords.speed;
-        console.log("(" + latitude + ", " + longitude + ") " + accuracy + " " + speed);
+        ws.send(JSON.stringify({latitude: latitude, longitude: longitude}));
     },
 
     addMarker: function (position) {
@@ -41,7 +43,7 @@ var locationHandler = {
     },
 
     successCallback: function (position) {
-        locationHandler.printCoords(position);
+        locationHandler.sendCoords(position);
         locationHandler.addMarker(position);
     },
 
