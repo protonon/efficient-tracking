@@ -8,8 +8,14 @@ var httpServer = app.listen(8080, function () {
 });
 
 var wsServer = ws.attach(httpServer);
-var redisClient = redis.createClient();
 
+if (process.env.REDISTOGO_URL) {
+    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+    var redis = require("redis").createClient(rtg.port, rtg.hostname);
+    redis.auth(rtg.auth.split(":")[1]);
+} else {
+    var redisClient = redis.createClient();
+}
 
 // Redis
 redisClient.on("error", function (err) {
