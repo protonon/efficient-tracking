@@ -21,11 +21,13 @@ var locationHandler = {
     },
 
     sendCoords: function (position) {
-        var latitude = position.coords.latitude;
-        var longitude = position.coords.longitude;
-        var accuracy = position.coords.accuracy;
-        var speed = position.coords.speed;
-        ws.send(JSON.stringify({latitude: latitude, longitude: longitude}));
+        ws.send(JSON.stringify({
+            timestamp: position.timestamp,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            speed: position.coords.speed
+        }));
     },
 
     addMarker: function (position) {
@@ -63,3 +65,6 @@ var locationHandler = {
         }
     }
 };
+
+
+// the client has a way to request a model update

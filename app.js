@@ -38,7 +38,7 @@ wsServer.on('connection', function (socket) {
     });
 
     socket.on('close', function () {
-        redisClient.del(socket.id);
+        redisClient.del(id);
         console.log('Socket closed. Bye!');
     });
 
