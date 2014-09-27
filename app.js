@@ -1,11 +1,14 @@
 var express = require('express'),
-    ws = require('websocket.io'),
-    redis = require('redis');
+ws = require('websocket.io'),
+redis = require('redis');
 
 var app = express();
-var httpServer = app.listen(8080, function () {
+app.set('port', (process.env.PORT || 8080))
+
+var httpServer = app.listen(app.get('port'), function () {
     console.log('Listening on port %d', httpServer.address().port);
 });
+
 
 var wsServer = ws.attach(httpServer);
 
