@@ -12,7 +12,7 @@ var wsServer = ws.attach(httpServer);
 if (process.env.REDISTOGO_URL) {
     var rtg = require("url").parse(process.env.REDISTOGO_URL);
     var redisClient = redis.createClient(rtg.port, rtg.hostname);
-    redisClient.auth(rtg.auth.split(":")[1]);
+    redisClient.auth(rtg.auth.split(":")[1], function (err) { if (err) throw err; });
 } else {
     var redisClient = redis.createClient();
 }
