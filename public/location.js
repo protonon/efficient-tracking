@@ -75,25 +75,24 @@ var locationHandler = {
             speed: position.coords.speed
         }
 
-        var predictedPosition = locationHandler.nextPosition(positionObj.timestamp);
-        var distance = locationHandler.computeDistance(positionObj, predictedPosition);
-
-        if (distance > locationHandler.errorThreshold && locationHandler.counter > 2) {
-            locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
-        } else if (locationHandler.counter <= 2) {
+        if (locationHandler.counter < 2) {
             locationHandler.counter += 1;
             locationHandler.sendCoords(positionObj);
+        } else {
+            if (locationHandler.currentModel) {
+                var predictedPosition = locationHandler.currentModel(positionObj.timestamp);
+                var distance = locationHandler.computeDistance(positionObj, predictedPosition);
+                if (distance > locationHandler.errorThreshold)
+                    locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
+            } else {
+                locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
+            }
+
         }
         locationHandler.addMarker(position);
     },
 
-    nextPosition: function (time) {
-        return -1;
-    },
-
     computeDistance: function (position1, position2) {
-        return 31; // SEND ALWAYS
-
         // http://www.movable-type.co.uk/scripts/latlong.html
         var R = 6371; // km
         var φ1 = position1.latitude.toRadians();

@@ -6,6 +6,7 @@ var app = express();
 app.set('port', (process.env.PORT || 8080))
 
 var model = require('./model');
+var currentModel = null;
 
 var httpServer = app.listen(app.get('port'), function () {
     console.log('Listening on port %d', httpServer.address().port);
@@ -69,7 +70,10 @@ wsServer.on('connection', function (socket) {
             redisClient.lpush(id, data, redis.print);
         }
         else if (obj.type == 'requestModelUpdate') {
-            modelUpdate(id, obj);
+            currentModel = modelUpdate(id, obj);
+            console.log('model updated...');
+            console.log(currentModel);
+            socket.send(currentModel);
         }
     });
 
