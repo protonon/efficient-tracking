@@ -4,7 +4,19 @@ var coordinator = require('coordinator');
 var fromLatLong = coordinator('latlong', 'utm');
 var toLatLong = coordinator('utm', 'latlong');
 
-var computeLine = function (x1, y1, x2, y2) {
+var model = {};
+
+model.getModel =  function (latlon1, latlon2) {
+    console.log('----')
+    console.log(latlon1);
+    console.log(latlon2);
+    console.log('----')
+    return function (t) {
+        return latlon2
+    }
+}
+
+model.computeLine = function (x1, y1, x2, y2) {
     var slope = (y1-y2)/(x1-x2);
     var intercept = (x1*y2 - x2*y1)/(x1-x2);
     var delta_x = x2 - x1;
@@ -14,7 +26,9 @@ var computeLine = function (x1, y1, x2, y2) {
     return [slope, intercept, angle, distance]
 }
 
-var nextPoint = function (x_last, y_last, angle, speed, time) {
+model.nextPoint = function (x_last, y_last, angle, speed, time) {
     var space = speed * time;
     return [x_last + space*Math.cos(angle), y_last + space*Math.sin(angle)];
 }
+
+module.exports = model;

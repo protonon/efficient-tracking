@@ -5,28 +5,50 @@ var ws = new WebSocket("ws://localhost:8080");
 var locationHandler = {
     gmap: null,
     markers: [],
+    counter: 0,
 
-    lookupPosition: function (map) {
+    // this variable is crucial for the application. The client will communicate
+    // a new position to the server if the predicted position and the current position
+    // different more than this threshold.
+    errorThreshold: 30,
+
+    // this variable stores the time (ms) to which the gps is used to check the position
+    gpsPollingTime: 10000,
+
+    currentModel: null,
+
+    init: function (map) {
         gmap = this.gmap || map; // initialize if gmap is null
         geoPosition.getCurrentPosition(
             this.successCallback,
             this.errorCallback,
             { enableHighAccuracy: true });
+        this.lookupPosition();
+    },
 
-        var self = this;
-        // emulate watchPosition(), for this experiment we need getCurrentPosition()
+    lookupPosition: function () {
+        // emulate watchPosition(), for this experiment we need getCurrentPosition() (or do we?)
         setInterval( function() {
-            self.lookupPosition(self.gmap)
-        }, 10000);
+            geoPosition.getCurrentPosition(
+                locationHandler.successCallback,
+                locationHandler.errorCallback,
+                { enableHighAccuracy: true });
+
+        }, locationHandler.gpsPollingTime);
+    },
+
+
+    requestModelUpdate: function (pos) {
+        ws.send(JSON.stringify ({
+            type: 'requestModelUpdate',
+            position: pos
+        }))
     },
 
     sendCoords: function (position) {
         ws.send(JSON.stringify({
-            timestamp: position.timestamp,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            speed: position.coords.speed
+            type: 'position',
+            position: position
         }));
     },
 
@@ -45,8 +67,47 @@ var locationHandler = {
     },
 
     successCallback: function (position) {
-        locationHandler.sendCoords(position);
+        var positionObj = {
+            timestamp: position.timestamp,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            speed: position.coords.speed
+        }
+
+        var predictedPosition = locationHandler.nextPosition(positionObj.timestamp);
+        var distance = locationHandler.computeDistance(positionObj, predictedPosition);
+
+        if (distance > locationHandler.errorThreshold && locationHandler.counter > 2) {
+            locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
+        } else if (locationHandler.counter <= 2) {
+            locationHandler.counter += 1;
+            locationHandler.sendCoords(positionObj);
+        }
         locationHandler.addMarker(position);
+    },
+
+    nextPosition: function (time) {
+        return -1;
+    },
+
+    computeDistance: function (position1, position2) {
+        return 31; // SEND ALWAYS
+
+        // http://www.movable-type.co.uk/scripts/latlong.html
+        var R = 6371; // km
+        var φ1 = position1.latitude.toRadians();
+        var φ2 = position2.latitude.toRadians();
+        var Δφ = (position2.latitude-position1.latitude).toRadians();
+        var Δλ = (position2.longitude-position1.longitude).toRadians();
+
+        var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        var d = R * c;
+        return d;
     },
 
     errorCallback: function (err) {

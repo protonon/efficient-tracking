@@ -27,7 +27,7 @@
           var map = new google.maps.Map(document.getElementById('map-canvas'),
                                         mapOptions);
           if (geoPosition.init())
-             locationHandler.lookupPosition(map)
+             locationHandler.init(map)
           else
               alert("geoPosition.init() has failed")
       }
