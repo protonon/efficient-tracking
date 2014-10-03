@@ -1,4 +1,5 @@
-var converter = {
+
+var Converter = {
     pi: Math.PI,
 
     /* Ellipsoid model constants (actual values here are for WGS84) */
@@ -487,3 +488,5 @@ var converter = {
         }
     }
 }
+
+module.exports = Converter;

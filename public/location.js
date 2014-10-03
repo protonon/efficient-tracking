@@ -1,10 +1,11 @@
 // For more information http://diveintohtml5.info/geolocation.html
 
 var ws = new WebSocket("ws://localhost:8080");
+var model = require('./model');
 
 ws.onmessage =  function(message) {
     var o = JSON.parse(message.data)
-    locationHandler.currentModel = Model.customInit(o);
+    locationHandler.currentModel = model.customInit(o);
 };
 
 var locationHandler = {

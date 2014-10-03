@@ -5,7 +5,8 @@ redis = require('redis');
 var app = express();
 app.set('port', (process.env.PORT || 8080))
 
-var model = require('./model');
+var model = require('./public/model');
+
 var currentModel = null;
 
 var httpServer = app.listen(app.get('port'), function () {
@@ -54,7 +55,7 @@ function modelUpdate(socket, newPosition, callback) {
 
             // Get the new model
             newModel = model.getModel(JSON.parse(lastPosition).position,
-                                      newPosition.position);
+                                            newPosition.position);
             callback(socket, newModel);
         }
     });

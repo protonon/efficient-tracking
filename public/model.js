@@ -1,4 +1,4 @@
-// http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+var converter = require('./converter');
 
 var Model = {
 
@@ -26,6 +26,7 @@ var Model = {
     getModel: function (latLon1, latLon2) {
         this.latLon1 = latLon1;
         this.latLon2 = latLon2;
+
         var conversion1 = converter.fromLatLon(latLon1.latitude, latLon1.longitude)
         var conversion2 = converter.fromLatLon(latLon2.latitude, latLon2.longitude)
         this.x_last = conversion2.x;
@@ -97,25 +98,4 @@ var Model = {
     }
 }
 
-
-
-// l1 = { timestamp: 1412345848377,
-//        latitude: 60.190444199999995,
-//        longitude: 24.8401204,
-//        accuracy: 20,
-//        speed: null }
-
-// l2 = { timestamp: 1412345861658,
-//        latitude: 60.190435699999995,
-//        longitude: 24.8401081,
-//        accuracy: 24,
-//        speed: null }
-// l1 = {latitude: 60, longitude: 20, timestamp: 0, speed: 3}
-// l2 = {latitude: 60.001, longitude: 20.001, timestamp: 1000, speed: 3}
-//m = model.getModel(l1,l2)
-//console.log(m)
-//console.log(m.nextPoint(10))
-
-//m = model.computeLine(1, 1, 0, 0)
-//console.log(m)
-//console.log(m * 180 / Math.PI);
+module.exports = Model;
