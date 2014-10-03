@@ -1,20 +1,17 @@
 // http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
 
-var converter = require('./converter')
-
-var model = {
+var Model = {
 
     latLon1: null,
     latLon2: null,
     x_last: null,
     y_last: null,
+    last_timestamp: null,
     speed: null,
     angle: null,
     zoneNumber: null,
-    last_timestamp: null,
 
-    init: function (json) {
-        var obj = JSON.parse(json);
+    customInit: function (obj) {
         this.latLon1 =    obj.latLon1;
         this.latLon2 =    obj.latLon2;
         this.x_last  =    obj.x_last;
@@ -23,6 +20,7 @@ var model = {
         this.angle   =    obj.angle;
         this.zoneNumber = obj.zoneNumber;
         this.last_timestamp = obj.last_timestamp;
+        return this;
     },
 
     getModel: function (latLon1, latLon2) {
@@ -33,7 +31,6 @@ var model = {
         this.x_last = conversion2.x;
         this.y_last = conversion2.y;
         this.zoneNumber = conversion2.zone;
-        this.last_timestamp = latLon2.timestamp;
 
         x1 = conversion1.x
         y1 = conversion1.y
@@ -91,7 +88,7 @@ var model = {
         return angle;
     },
 
-    nextPoint: function (time) {
+    nextPoint: function (timestamp) {
         var time = timestamp - this.last_timestamp;
         var space = this.speed * time;
         var next_x = this.x_last + space*Math.cos(this.angle);
@@ -100,7 +97,6 @@ var model = {
     }
 }
 
-module.exports = model;
 
 
 // l1 = { timestamp: 1412345848377,

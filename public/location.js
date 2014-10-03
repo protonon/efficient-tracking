@@ -2,9 +2,15 @@
 
 var ws = new WebSocket("ws://localhost:8080");
 
+ws.onmessage =  function(message) {
+    var o = JSON.parse(message.data)
+    locationHandler.currentModel = Model.customInit(o);
+};
+
 var locationHandler = {
     gmap: null,
     markers: [],
+    predictions: [],
     counter: 0,
 
     // this variable is crucial for the application. The client will communicate
@@ -61,6 +67,19 @@ var locationHandler = {
         locationHandler.markers.push(marker);
     },
 
+    addPrediction: function (lat, lon) {
+        var myLatlng = new google.maps.LatLng(lat, lon);
+        var marker = new google.maps.Marker({
+            position: myLatlng,
+            map: gmap,
+            icon: {
+                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                scale: 10
+            }
+        });
+        locationHandler.predictions.push(marker);
+    },
+
     setCenter: function (position) {
         gmap.setCenter(myLatlng);
         gmap.setZoom(15);
@@ -80,12 +99,16 @@ var locationHandler = {
             locationHandler.sendCoords(positionObj);
         } else {
             if (locationHandler.currentModel) {
-                var predictedPosition = locationHandler.currentModel(positionObj.timestamp);
+                var predictedPosition = locationHandler.currentModel.nextPoint(positionObj.timestamp);
+
+                locationHandler.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
+
                 var distance = locationHandler.computeDistance(positionObj, predictedPosition);
+                console.log(distance)
                 if (distance > locationHandler.errorThreshold)
-                    locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
+                    locationHandler.requestModelUpdate(positionObj);
             } else {
-                locationHandler.currentModel = locationHandler.requestModelUpdate(positionObj);
+                locationHandler.requestModelUpdate(positionObj);
             }
 
         }
@@ -126,5 +149,3 @@ var locationHandler = {
     }
 };
 
-
-// the client has a way to request a model update

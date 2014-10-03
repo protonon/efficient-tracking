@@ -30,7 +30,7 @@ redisClient.on("error", function (err) {
 
 // Express
 app.set('views', './public/views');
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public', __dirname + '/shared'));
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -40,7 +40,8 @@ app.get('/', function(req, res) {
 });
 
 
-function modelUpdate(id, newPosition) {
+function modelUpdate(socket, newPosition, callback) {
+    var id = socket.user_id;
     redisClient.lpop(id, function (err, lastPosition) {
         if (err) {
             throw err;
@@ -54,37 +55,41 @@ function modelUpdate(id, newPosition) {
             // Get the new model
             newModel = model.getModel(JSON.parse(lastPosition).position,
                                       newPosition.position);
-            return newModel;
+            callback(socket, newModel);
         }
     });
 }
 
+
+function updateModelAndSend(socket, model) {
+    currentModel = model;
+    socket.send(JSON.stringify(currentModel));
+}
+
+
 // Websocket
 wsServer.on('connection', function (socket) {
-    var id = Math.ceil(Math.random() * 10000);
-    console.log('Socket open with ID: ' + id);
+    socket.user_id = Math.ceil(Math.random() * 10000);
+    console.log('Socket open with ID: ' + socket.user_id);
 
     socket.on('message', function (data) {
         var obj = JSON.parse(data)
         if (obj.type == 'position') {
-            redisClient.lpush(id, data, redis.print);
+            redisClient.lpush(socket.user_id, data, redis.print);
         }
         else if (obj.type == 'requestModelUpdate') {
-            currentModel = modelUpdate(id, obj);
-            console.log('model updated...');
-            console.log(currentModel);
-            socket.send(currentModel);
+            modelUpdate(socket, obj, updateModelAndSend);
         }
     });
 
     socket.on('error', function () {
-        redisClient.del(id);
+        redisClient.del(socket.user_id);
         console.log('[ERROR] An error occurred. Closing gracefully...')
         socket.close();
     });
 
     socket.on('close', function () {
-        redisClient.del(id);
+        redisClient.del(socket.user_id);
         console.log('[CLOSE] Socket closed. Bye!');
         socket.close();
     });
