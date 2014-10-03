@@ -95,10 +95,10 @@ var locationHandler = {
     computeDistance: function (position1, position2) {
         // http://www.movable-type.co.uk/scripts/latlong.html
         var R = 6371; // km
-        var φ1 = position1.latitude.toRadians();
-        var φ2 = position2.latitude.toRadians();
-        var Δφ = (position2.latitude-position1.latitude).toRadians();
-        var Δλ = (position2.longitude-position1.longitude).toRadians();
+        var φ1 = position1.latitude * Math.PI / 180;
+        var φ2 = position2.latitude * Math.PI / 180;
+        var Δφ = (position2.latitude-position1.latitude) * Math.PI / 180;
+        var Δλ = (position2.longitude-position1.longitude) * Math.PI / 180;
 
         var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
             Math.cos(φ1) * Math.cos(φ2) *

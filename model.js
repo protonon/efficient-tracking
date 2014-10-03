@@ -1,11 +1,11 @@
 // http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
 
-var coordinator = require('coordinator');
-var fromLatLon = coordinator('latlong', 'utm');
-var toLatLon = coordinator('utm', 'latlong');
+var converter = require('./converter')
 
 var model = {
 
+    latLon1: null,
+    latLon2: null,
     x_last: null,
     y_last: null,
     speed: null,
@@ -13,47 +13,67 @@ var model = {
     zoneNumber: null,
 
     getModel: function (latLon1, latLon2) {
-        this.x_last = fromLatLon(latLon2.latitude, latLon2.longitude).easting;
-        this.y_last = fromLatLon(latLon2.latitude, latLon2.longitude).northing;
-        this.zoneNumber = fromLatLon(latLon2.latitude, latLon2.longitude).zoneNumber;
+        this.latLon1 = latLon1;
+        this.latLon2 = latLon2;
+        var conversion1 = converter.fromLatLon(latLon1.latitude, latLon1.longitude)
+        var conversion2 = converter.fromLatLon(latLon2.latitude, latLon2.longitude)
+        this.x_last = conversion2.x;
+        this.y_last = conversion2.y;
+        this.zoneNumber = conversion2.zone;
 
-        x1 = fromLatLon(latLon1.latitude, latLon1.longitude).easting;
-        y1 = fromLatLon(latLon1.latitude, latLon1.longitude).northing;
+        x1 = conversion1.x
+        y1 = conversion1.y
 
         // FIX IT
         if (y1 === this.y_last) {
             y1++;
         }
-
-        var res = this.computeLine(x1, y1, this.x_last, this.y_last);
-        console.log(res);
+        if (x1 === this.x_last) {
+            x1++;
+        }
 
         if (latLon2.speed) {
             this.speed = latLon2.speed;
         } else {
-            delta_t = latLon2.timestamp - latLon2.timestamp;
-            delta_s = this.computeDistance(x1, y1, this.x_last, this.y_last);
+            delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
+            delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
             this.speed = delta_s / delta_t;
         }
         this.angle = this.computeLine(x1, y1, this.x_last, this.y_last);
 
-        return (function(time) {
-            var res = this.nextPoint(time);
-            return toLatLon(res[0], res[1], this.zoneNumber);
-        })
+        return this;
     },
 
     computeDistance: function (x1, y1, x2, y2) {
         var delta_x = x2 - x1;
         var delta_y = y2 - y1;
-        return  Math.sqrt(delta_x*delta_x + delta_y*delta_y);
+        return Math.sqrt(Math.pow(delta_x,2) + Math.pow(delta_y,2));
+    },
+
+    computeDistanceBetweenLatLon: function (position1, position2) {
+        // http://www.movable-type.co.uk/scripts/latlong.html
+        var R = 6371000; // metres
+        var φ1 = position1.latitude * Math.PI / 180;
+        var φ2 = position2.latitude * Math.PI / 180;
+        var Δφ = (position2.latitude-position1.latitude) * Math.PI / 180;
+        var Δλ = (position2.longitude-position1.longitude) * Math.PI / 180;
+
+        var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        var d = R * c;
+        return d;
     },
 
     computeLine:  function (x1, y1, x2, y2) {
         var slope = (y1-y2)/(x1-x2);
         var intercept = (x1*y2 - x2*y1)/(x1-x2);
         var distance = this.computeDistance(x1, y2, x2, y2);
-        var angle = Math.acos((x2-x1) / distance);
+        //var angle = Math.acos((x2-x1) / distance);
+        var angle =  Math.atan2(y2 - y1, x2 - x1);
+
         return angle;
     },
 
@@ -61,8 +81,19 @@ var model = {
         var space = this.speed * time;
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);
-        return [next_x, next_y];
+        return converter.toLatLon(next_x, next_y, this.zoneNumber);
     }
 }
 
 module.exports = model;
+
+
+l1 = {latitude: 60, longitude: 20, timestamp: 0, speed: 3}
+l2 = {latitude: 60.001, longitude: 20.001, timestamp: 1000, speed: 3}
+m = model.getModel(l1,l2)
+console.log(m)
+console.log(m.nextPoint(10))
+
+//m = model.computeLine(1, 1, 0, 0)
+//console.log(m)
+//console.log(m * 180 / Math.PI);
