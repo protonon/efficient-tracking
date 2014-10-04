@@ -714,13 +714,13 @@ var Model = {
             x1++;
         }
 
-        if (latLon2.speed) {
-            this.speed = latLon2.speed;
-        } else {
-            delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
-            delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
-            this.speed = delta_s / delta_t;
-        }
+//        if (latLon2.speed) {
+//            this.speed = latLon2.speed;
+//        } else {
+        delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
+        delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
+        this.speed = delta_s / delta_t;
+//        }
         this.angle = this.computeLine(x1, y1, this.x_last, this.y_last);
 
         return this;
