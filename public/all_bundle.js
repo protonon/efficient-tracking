@@ -515,7 +515,7 @@ module.exports = Converter;
 },{}],3:[function(require,module,exports){
 // For more information http://diveintohtml5.info/geolocation.html
 
-var ws = new WebSocket("ws://localhost:8080");
+var ws = new WebSocket("ws://efficient-tracking.herokuapp.com");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
