@@ -528,6 +528,7 @@ var locationHandler = {
     markers: [],
     predictions: [],
     counter: 0,
+    seq_number: 0,
 
     // this variable is crucial for the application. The client will communicate
     // a new position to the server if the predicted position and the current position
@@ -541,11 +542,13 @@ var locationHandler = {
 
     init: function (map) {
         gmap = this.gmap || map; // initialize if gmap is null
-        geoPosition.getCurrentPosition(
-            this.successCallback,
-            this.errorCallback,
-            { enableHighAccuracy: true });
-        this.lookupPosition();
+        setTimeout( function() {
+            geoPosition.getCurrentPosition(
+                locationHandler.successCallback,
+                locationHandler.errorCallback,
+                { enableHighAccuracy: true });
+            locationHandler.lookupPosition();
+        }, 1000);
     },
 
     lookupPosition: function () {
@@ -602,6 +605,8 @@ var locationHandler = {
     },
 
     successCallback: function (position) {
+        locationHandler.seq_number += 1;
+        console.log("Req. N. " + locationHandler.seq_number.toString())
         var positionObj = {
             timestamp: position.timestamp,
             latitude: position.coords.latitude,
@@ -615,15 +620,21 @@ var locationHandler = {
             locationHandler.sendCoords(positionObj);
         } else {
             if (locationHandler.currentModel) {
+                console.log('yay! we have a model')
                 var predictedPosition = locationHandler.currentModel.nextPoint(positionObj.timestamp);
 
                 locationHandler.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
 
                 var distance = locationHandler.computeDistance(positionObj, predictedPosition);
+                if (distance > 1000) {
+                    console.log("The distance is bigger than 1000!");
+                }
                 console.log(distance)
+
                 if (distance > locationHandler.errorThreshold)
                     locationHandler.requestModelUpdate(positionObj);
             } else {
+                console.log(':( no model yet..  a sending a request...')
                 locationHandler.requestModelUpdate(positionObj);
             }
 

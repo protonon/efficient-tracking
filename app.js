@@ -53,7 +53,7 @@ function modelUpdate(socket, newPosition, callback) {
             // Push the new position
             redisClient.lpush(id, JSON.stringify(newPosition));
 
-            // Get the new model
+            // Get the new model with the last two position
             newModel = model.getModel(JSON.parse(lastPosition).position,
                                             newPosition.position);
             callback(socket, newModel);
