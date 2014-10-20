@@ -14,6 +14,7 @@ var locationHandler = {
     predictions: [],
     counter: 0,
     seq_number: 0,
+    maxDistance: 1000,
 
     // this variable is crucial for the application. The client will communicate
     // a new position to the server if the predicted position and the current position
@@ -111,13 +112,16 @@ var locationHandler = {
                 locationHandler.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
 
                 var distance = locationHandler.computeDistance(positionObj, predictedPosition);
-                if (distance > 1000) {
-                    console.log("The distance is bigger than 1000!");
+                if (distance > locationHandler.maxDistance) {
+                    alert("The distance is bigger than 1000!");
                 }
                 console.log(distance)
 
-                if (distance > locationHandler.errorThreshold)
+                if (distance > locationHandler.maxDistance) {
+                    locationHandler.sendCoords(positionObj);
+                } else if (distance > locationHandler.errorThreshold) {
                     locationHandler.requestModelUpdate(positionObj);
+                }
             } else {
                 console.log(':( no model yet..  a sending a request...')
                 locationHandler.requestModelUpdate(positionObj);
