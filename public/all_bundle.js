@@ -9,12 +9,13 @@ function initialize() {
     };
     var map = new google.maps.Map(document.getElementById('map-canvas'),
                                   mapOptions);
-    if (geoPosition.init())
-        locationHandler.init(map)
-    else
+    if (geoPosition.init()) {
+        // true is for model-based
+        locationHandler.init(map, false)
+    } else {
         alert("geoPosition.init() has failed")
+    }
 }
-
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
@@ -515,7 +516,7 @@ module.exports = Converter;
 },{}],3:[function(require,module,exports){
 // For more information http://diveintohtml5.info/geolocation.html
 
-var ws = new WebSocket("ws://efficient-tracking.herokuapp.com");
+var ws = new WebSocket("ws://localhost:8080");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -541,15 +542,22 @@ var locationHandler = {
 
     currentModel: null,
 
-    init: function (map) {
+    init: function (map, useModelBased) {
         gmap = this.gmap || map; // initialize if gmap is null
-        setTimeout( function() {
-            geoPosition.getCurrentPosition(
-                locationHandler.successCallback,
+        if (useModelBased) {
+            setTimeout( function() {
+                geoPosition.getCurrentPosition(
+                    locationHandler.successCallback,
+                    locationHandler.errorCallback,
+                    { enableHighAccuracy: true });
+                locationHandler.lookupPosition();
+            }, 1000);
+        } else {
+            navigator.geolocation.watchPosition(
+                locationHandler.watchPositionSuccessCallback,
                 locationHandler.errorCallback,
                 { enableHighAccuracy: true });
-            locationHandler.lookupPosition();
-        }, 1000);
+        }
     },
 
     lookupPosition: function () {
@@ -565,6 +573,7 @@ var locationHandler = {
 
 
     requestModelUpdate: function (pos) {
+
         ws.send(JSON.stringify ({
             type: 'requestModelUpdate',
             position: pos
@@ -603,6 +612,19 @@ var locationHandler = {
     setCenter: function (position) {
         gmap.setCenter(myLatlng);
         gmap.setZoom(15);
+    },
+
+    watchPositionSuccessCallback: function (position) {
+        var positionObj = {
+            timestamp: position.timestamp,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            speed: position.coords.speed
+        }
+        self = locationHandler
+        self.sendCoords(positionObj)
+        self.addMarker(position)
     },
 
     successCallback: function (position) {

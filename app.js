@@ -75,6 +75,7 @@ wsServer.on('connection', function (socket) {
     console.log('Socket open with ID: ' + socket.user_id);
 
     socket.on('message', function (data) {
+        console.log('Message received on sokedID: ' + socket.user_id);
         var obj = JSON.parse(data)
         if (obj.type == 'position') {
             redisClient.lpush(socket.user_id, data, redis.print);
@@ -85,13 +86,13 @@ wsServer.on('connection', function (socket) {
     });
 
     socket.on('error', function () {
-        redisClient.del(socket.user_id);
+        //redisClient.del(socket.user_id);
         console.log('[ERROR] An error occurred. Closing gracefully...')
         socket.close();
     });
 
     socket.on('close', function () {
-        redisClient.del(socket.user_id);
+        //redisClient.del(socket.user_id);
         console.log('[CLOSE] Socket closed. Bye!');
         socket.close();
     });

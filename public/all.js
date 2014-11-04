@@ -8,11 +8,12 @@ function initialize() {
     };
     var map = new google.maps.Map(document.getElementById('map-canvas'),
                                   mapOptions);
-    if (geoPosition.init())
-        locationHandler.init(map)
-    else
+    if (geoPosition.init()) {
+        // true is for model-based
+        locationHandler.init(map, false)
+    } else {
         alert("geoPosition.init() has failed")
+    }
 }
-
 
 google.maps.event.addDomListener(window, 'load', initialize);
