@@ -10,7 +10,7 @@ function initialize() {
                                   mapOptions);
     if (geoPosition.init()) {
         // true is for model-based
-        locationHandler.init(map, false)
+        locationHandler.init(map, true)
     } else {
         alert("geoPosition.init() has failed")
     }

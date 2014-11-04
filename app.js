@@ -56,7 +56,8 @@ function modelUpdate(socket, newPosition, callback) {
 
             // Get the new model with the last two position
             newModel = model.getModel(JSON.parse(lastPosition).position,
-                                            newPosition.position);
+                                      newPosition.position);
+            //console.log(newModel)
             callback(socket, newModel);
         }
     });

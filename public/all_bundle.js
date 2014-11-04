@@ -11,7 +11,7 @@ function initialize() {
                                   mapOptions);
     if (geoPosition.init()) {
         // true is for model-based
-        locationHandler.init(map, false)
+        locationHandler.init(map, true)
     } else {
         alert("geoPosition.init() has failed")
     }
@@ -516,7 +516,7 @@ module.exports = Converter;
 },{}],3:[function(require,module,exports){
 // For more information http://diveintohtml5.info/geolocation.html
 
-var ws = new WebSocket("ws://localhost:8080");
+var ws = new WebSocket("ws://188.226.176.165:8080");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -535,6 +535,7 @@ var locationHandler = {
     // this variable is crucial for the application. The client will communicate
     // a new position to the server if the predicted position and the current position
     // different more than this threshold.
+    // The error is in meters
     errorThreshold: 30,
 
     // this variable stores the time (ms) to which the gps is used to check the position
@@ -651,14 +652,18 @@ var locationHandler = {
                 self.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
 
                 var distance = self.computeDistance(positionObj, predictedPosition);
-                if (distance > self.maxDistance) {
-                    alert("The distance is bigger than 1000!");
-                }
-                console.log(distance)
+                // if (distance > self.maxDistance) {
+                //     alert("The distance is bigger than 1000!");
+                // }
+                // console.log(distance)
 
-                if (distance > self.maxDistance) {
-                    self.sendCoords(positionObj);
-                } else if (distance > self.errorThreshold) {
+                // if (distance > self.maxDistance) {
+                //    self.sendCoords(positionObj);
+                //} else
+                console.log(positionObj)
+                console.log(predictedPosition)
+                console.log('distance: ' + distance)
+                if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
                 }
             } else {
@@ -670,9 +675,10 @@ var locationHandler = {
         self.addMarker(position);
     },
 
+    // compute the distance in meters
     computeDistance: function (position1, position2) {
         // http://www.movable-type.co.uk/scripts/latlong.html
-        var R = 6371; // km
+        var R = 6371000; // meters
         var φ1 = position1.latitude * Math.PI / 180;
         var φ2 = position2.latitude * Math.PI / 180;
         var Δφ = (position2.latitude-position1.latitude) * Math.PI / 180;
@@ -803,10 +809,10 @@ var Model = {
 
         var time = (timestamp - this.last_timestamp) / 1000000000;
         var space = this.speed * time;
-        console.log('time - speed - space')
-        console.log(time)
-        console.log(this.speed)
-        console.log(space)
+        //console.log('time - speed - space')
+        //console.log(time)
+        //console.log(this.speed)
+        //console.log(space)
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);
         return converter.toLatLon(next_x, next_y, this.zoneNumber);

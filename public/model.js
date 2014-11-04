@@ -94,10 +94,10 @@ var Model = {
 
         var time = (timestamp - this.last_timestamp) / 1000000000;
         var space = this.speed * time;
-        console.log('time - speed - space')
-        console.log(time)
-        console.log(this.speed)
-        console.log(space)
+        //console.log('time - speed - space')
+        //console.log(time)
+        //console.log(this.speed)
+        //console.log(space)
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);
         return converter.toLatLon(next_x, next_y, this.zoneNumber);
