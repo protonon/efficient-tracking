@@ -93,6 +93,8 @@ var locationHandler = {
     successCallback: function (position) {
         locationHandler.seq_number += 1;
         console.log("Req. N. " + locationHandler.seq_number.toString())
+        self = locationHandler
+
         var positionObj = {
             timestamp: position.timestamp,
             latitude: position.coords.latitude,
@@ -101,34 +103,34 @@ var locationHandler = {
             speed: position.coords.speed
         }
 
-        if (locationHandler.counter < 2) {
-            locationHandler.counter += 1;
-            locationHandler.sendCoords(positionObj);
+        if (self.counter < 2) {
+            self.counter += 1;
+            self.sendCoords(positionObj);
         } else {
-            if (locationHandler.currentModel) {
+            if (self.currentModel) {
                 console.log('yay! we have a model')
-                var predictedPosition = locationHandler.currentModel.nextPoint(positionObj.timestamp);
+                var predictedPosition = self.currentModel.nextPoint(positionObj.timestamp);
 
-                locationHandler.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
+                self.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
 
-                var distance = locationHandler.computeDistance(positionObj, predictedPosition);
-                if (distance > locationHandler.maxDistance) {
+                var distance = self.computeDistance(positionObj, predictedPosition);
+                if (distance > self.maxDistance) {
                     alert("The distance is bigger than 1000!");
                 }
                 console.log(distance)
 
-                if (distance > locationHandler.maxDistance) {
-                    locationHandler.sendCoords(positionObj);
-                } else if (distance > locationHandler.errorThreshold) {
-                    locationHandler.requestModelUpdate(positionObj);
+                if (distance > self.maxDistance) {
+                    self.sendCoords(positionObj);
+                } else if (distance > self.errorThreshold) {
+                    self.requestModelUpdate(positionObj);
                 }
             } else {
                 console.log(':( no model yet..  a sending a request...')
-                locationHandler.requestModelUpdate(positionObj);
+                self.requestModelUpdate(positionObj);
             }
 
         }
-        locationHandler.addMarker(position);
+        self.addMarker(position);
     },
 
     computeDistance: function (position1, position2) {

@@ -19,16 +19,16 @@ var bb = {
 
 function handleBlackBerryLocationTimeout()
 {
-	  if(bb.blackberryTimeoutId!=-1) {
-		    bb.error({ message:     "Timeout error",
+    if(bb.blackberryTimeoutId!=-1) {
+        bb.error({ message:     "Timeout error",
                    code:        3
                  });
-	  }
+    }
 }
 function handleBlackBerryLocation()
 {
-		clearTimeout(bb.blackberryTimeoutId);
-		bb.blackberryTimeoutId=-1;
+    clearTimeout(bb.blackberryTimeoutId);
+    bb.blackberryTimeoutId=-1;
     if (bb.success && bb.error) {
         if(blackberry.location.latitude==0 && blackberry.location.longitude==0) {
             //http://dev.w3.org/geo/api/spec-source.html#position_unavailable_error
@@ -64,7 +64,7 @@ var geoPosition=function() {
 
     var pub = {};
     var provider=null;
-		var u="undefined";
+    var u="undefined";
     var ipGeolocationSrv = 'http://freegeoip.net/json/?callback=JSONPCallback';
 
     pub.getCurrentPosition = function(success,error,opts)
@@ -135,10 +135,10 @@ var geoPosition=function() {
                 }
             } else if(typeof(window.blackberry)!=u && blackberry.location.GPSSupported) {
                 // set to autonomous mode
-						    if(typeof(blackberry.location.setAidMode)==u) {
+                if(typeof(blackberry.location.setAidMode)==u) {
                     return false;
-						    }
-						    blackberry.location.setAidMode(2);
+                }
+                blackberry.location.setAidMode(2);
                 //override default method implementation
                 pub.getCurrentPosition = function(success,error,opts)
                 {
@@ -148,13 +148,13 @@ var geoPosition=function() {
                     bb.error = error;
                     //function needs to be a string according to
                     //http://www.tonybunce.com/2008/05/08/Blackberry-Browser-Amp-GPS.aspx
-								    if(opts['timeout']) {
-								 	      bb.blackberryTimeoutId = setTimeout("handleBlackBerryLocationTimeout()",opts['timeout']);
-								    } else {
+                    if(opts['timeout']) {
+                        bb.blackberryTimeoutId = setTimeout("handleBlackBerryLocationTimeout()",opts['timeout']);
+                    } else {
                         //default timeout when none is given to prevent a hanging script
-									      bb.blackberryTimeoutId = setTimeout("handleBlackBerryLocationTimeout()",60000);
-								    }
-								    blackberry.location.onLocationUpdate("handleBlackBerryLocation()");
+                        bb.blackberryTimeoutId = setTimeout("handleBlackBerryLocationTimeout()",60000);
+                    }
+                    blackberry.location.onLocationUpdate("handleBlackBerryLocation()");
                     blackberry.location.refreshLocation();
                 }
                 provider = blackberry.location;
@@ -254,9 +254,9 @@ var geoPosition=function() {
             }
         }
         catch (e){
-				    if( typeof(console) != u ) console.log(e);
-				    return false;
-			  }
+            if( typeof(console) != u ) console.log(e);
+            return false;
+        }
         return  provider!=null;
     }
     return pub;

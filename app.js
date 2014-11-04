@@ -15,6 +15,7 @@ var httpServer = app.listen(app.get('port'), function () {
 
 var wsServer = ws.attach(httpServer);
 
+// heroku deploy
 if (process.env.REDISTOGO_URL) {
     var rtg = require("url").parse(process.env.REDISTOGO_URL);
     var redisClient = redis.createClient(rtg.port, rtg.hostname);
