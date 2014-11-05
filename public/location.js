@@ -67,6 +67,8 @@ var locationHandler = {
     },
 
     sendCoords: function (position) {
+        //console.log("Sending..")
+        //console.log(position)
         ws.send(JSON.stringify({
             type: 'position',
             position: position
@@ -147,14 +149,16 @@ var locationHandler = {
                 // if (distance > self.maxDistance) {
                 //     alert("The distance is bigger than 1000!");
                 // }
-                // console.log(distance)
 
                 // if (distance > self.maxDistance) {
                 //    self.sendCoords(positionObj);
                 //} else
-                // console.log(positionObj)
-                // console.log(predictedPosition)
+                //console.log(model)
+                //console.log(positionObj)
+                //console.log(predictedPosition)
+
                 console.log('distance: ' + distance)
+                console.log(predictedPosition)
                 if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
                 } else {

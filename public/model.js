@@ -32,6 +32,7 @@ var Model = {
         this.x_last = conversion2.x;
         this.y_last = conversion2.y;
         this.zoneNumber = conversion2.zone;
+        this.last_timestamp = latLon2.timestamp;
 
         x1 = conversion1.x
         y1 = conversion1.y
@@ -47,9 +48,14 @@ var Model = {
 //        if (latLon2.speed) {
 //            this.speed = latLon2.speed;
 //        } else {
-        delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000000000; // convert to seconds
+        delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
         delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
+        console.log("delta_s" + delta_s)
         this.speed = delta_s / delta_t;
+
+        if (this.speed == 0) {
+            this.speed = 5;
+        }
 //        }
         this.angle = this.computeLine(x1, y1, this.x_last, this.y_last);
 
@@ -92,12 +98,15 @@ var Model = {
     nextPoint: function (timestamp) {
         console.log('computing next point...')
 
-        var time = (timestamp - this.last_timestamp) / 1000000000;
+        var time = (timestamp - this.last_timestamp) / 1000;
         var space = this.speed * time;
-        //console.log('time - speed - space')
-        //console.log(time)
-        //console.log(this.speed)
-        //console.log(space)
+        console.log('time - speed - space')
+        console.log(time)
+        console.log(this.speed)
+        console.log(space)
+        console.log(Math.cos(this.angle))
+        console.log(Math.sin(this.angle))
+
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);
         return converter.toLatLon(next_x, next_y, this.zoneNumber);
