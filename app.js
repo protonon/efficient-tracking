@@ -80,8 +80,7 @@ wsServer.on('connection', function (socket) {
         var obj = JSON.parse(data)
         if (obj.type == 'position') {
             redisClient.lpush(socket.user_id, data, redis.print);
-        }
-        else if (obj.type == 'requestModelUpdate') {
+        } else if (obj.type == 'requestModelUpdate') {
             modelUpdate(socket, obj, updateModelAndSend);
         }
     });

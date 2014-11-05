@@ -517,6 +517,7 @@ module.exports = Converter;
 // For more information http://diveintohtml5.info/geolocation.html
 
 var ws = new WebSocket("ws://188.226.176.165:8080");
+//var ws = new WebSocket("ws://localhost:8080");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -584,6 +585,13 @@ var locationHandler = {
     sendCoords: function (position) {
         ws.send(JSON.stringify({
             type: 'position',
+            position: position
+        }));
+    },
+
+    sendLogs: function (position) {
+        ws.send(JSON.stringify({
+            type: 'log',
             position: position
         }));
     },
@@ -660,11 +668,13 @@ var locationHandler = {
                 // if (distance > self.maxDistance) {
                 //    self.sendCoords(positionObj);
                 //} else
-                console.log(positionObj)
-                console.log(predictedPosition)
+                // console.log(positionObj)
+                // console.log(predictedPosition)
                 console.log('distance: ' + distance)
                 if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
+                } else {
+                    self.sendLogs(predictedPosition)
                 }
             } else {
                 console.log(':( no model yet..  a sending a request...')
