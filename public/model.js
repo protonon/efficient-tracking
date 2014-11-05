@@ -101,6 +101,7 @@ var Model = {
         var time = (timestamp - this.last_timestamp) / 1000;
         var space = this.speed * time;
         console.log('time - speed - space')
+        console.log(this.last_timestamp)
         console.log(time)
         console.log(this.speed)
         console.log(space)
