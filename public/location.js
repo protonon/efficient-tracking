@@ -21,10 +21,10 @@ var locationHandler = {
     // a new position to the server if the predicted position and the current position
     // different more than this threshold.
     // The error is in meters
-    errorThreshold: 30,
+    errorThreshold: 10,
 
     // this variable stores the time (ms) to which the gps is used to check the position
-    gpsPollingTime: 10000,
+    gpsPollingTime: 1000,
 
     currentModel: null,
 
