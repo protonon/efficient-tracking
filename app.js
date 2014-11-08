@@ -81,7 +81,7 @@ wsServer.on('connection', function (socket) {
     socket.on('message', function (data) {
         console.log('Message received on sokedID: ' + socket.user_id);
         var obj = JSON.parse(data)
-        if (obj.type == 'position') {
+        if (obj.type == 'position' || obj.type == 'log') {
             redisClient.lpush(socket.user_id, data, redis.print);
         } else if (obj.type == 'requestModelUpdate') {
             modelUpdate(socket, obj, updateModelAndSend);
