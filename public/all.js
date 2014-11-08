@@ -1,4 +1,5 @@
-var locationHandler = require('./location');
+var locationHandler = require('./location')
+var config = require('./configuration')
 
 function initialize() {
     var mapOptions = {
@@ -10,7 +11,7 @@ function initialize() {
                                   mapOptions);
     if (geoPosition.init()) {
         // true is for model-based
-        locationHandler.init(map, true)
+        locationHandler.init(map, config.useModel)
     } else {
         alert("geoPosition.init() has failed")
     }

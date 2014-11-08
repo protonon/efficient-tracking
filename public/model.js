@@ -50,7 +50,7 @@ var Model = {
 //        } else {
         delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
         delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
-        console.log("delta_s" + delta_s)
+        // console.log("delta_s" + delta_s)
         this.speed = delta_s / delta_t;
 
         if (this.speed == 0) {
@@ -96,17 +96,17 @@ var Model = {
     },
 
     nextPoint: function (timestamp) {
-        console.log('computing next point...')
+        //console.log('computing next point...')
 
         var time = (timestamp - this.last_timestamp) / 1000;
         var space = this.speed * time;
-        console.log('time - speed - space')
-        console.log(this.last_timestamp)
-        console.log(time)
-        console.log(this.speed)
-        console.log(space)
-        console.log(Math.cos(this.angle))
-        console.log(Math.sin(this.angle))
+        //console.log('time - speed - space')
+        //console.log(this.last_timestamp)
+        //console.log(time)
+        //console.log(this.speed)
+        //console.log(space)
+        //console.log(Math.cos(this.angle))
+        //console.log(Math.sin(this.angle))
 
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);

@@ -2,10 +2,13 @@ var express = require('express'),
 ws = require('websocket.io'),
 redis = require('redis');
 
+var config = require('./public/configuration')
+
 var app = express();
-app.set('port', (process.env.PORT || 8080))
+app.set('port', (process.env.PORT || config.port))
 
 var model = require('./public/model');
+
 
 var currentModel = null;
 

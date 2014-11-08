@@ -1,7 +1,7 @@
 // For more information http://diveintohtml5.info/geolocation.html
 
-var ws = new WebSocket("ws://188.226.176.165:8080");
-//var ws = new WebSocket("ws://localhost:8080");
+//var ws = new WebSocket("ws://188.226.176.165:8080");
+var ws = new WebSocket("ws://localhost:8080");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -24,18 +24,19 @@ var locationHandler = {
     errorThreshold: 10,
 
     // this variable stores the time (ms) to which the gps is used to check the position
-    gpsPollingTime: 5000,
+    gpsPollingTime: 6000,
 
     currentModel: null,
 
     init: function (map, useModelBased) {
         gmap = this.gmap || map; // initialize if gmap is null
         if (useModelBased) {
+            // wait a bit before starting (so that the socket is open)
             setTimeout( function() {
-                geoPosition.getCurrentPosition(
-                    locationHandler.successCallback,
-                    locationHandler.errorCallback,
-                    { enableHighAccuracy: true });
+                //navigator.geolocation.getCurrentPosition(
+                //    locationHandler.successCallback,
+                //    locationHandler.errorCallback,
+                //    { enableHighAccuracy: true });
                 locationHandler.lookupPosition();
             }, 1000);
         } else {
@@ -140,7 +141,7 @@ var locationHandler = {
             self.sendCoords(positionObj);
         } else {
             if (self.currentModel) {
-                console.log('yay! we have a model')
+                //console.log('yay! we have a model')
                 var predictedPosition = self.currentModel.nextPoint(positionObj.timestamp);
 
                 self.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
@@ -158,14 +159,14 @@ var locationHandler = {
                 //console.log(predictedPosition)
 
                 console.log('distance: ' + distance)
-                console.log(predictedPosition)
+                //console.log(predictedPosition)
                 if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
                 } else {
                     self.sendLogs(predictedPosition)
                 }
             } else {
-                console.log(':( no model yet..  a sending a request...')
+                //console.log(':( no model yet..  a sending a request...')
                 self.requestModelUpdate(positionObj);
             }
 

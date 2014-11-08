@@ -1,5 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var locationHandler = require('./location');
+var locationHandler = require('./location')
+var config = require('./configuration')
 
 function initialize() {
     var mapOptions = {
@@ -11,7 +12,7 @@ function initialize() {
                                   mapOptions);
     if (geoPosition.init()) {
         // true is for model-based
-        locationHandler.init(map, true)
+        locationHandler.init(map, config.useModel)
     } else {
         alert("geoPosition.init() has failed")
     }
@@ -19,7 +20,13 @@ function initialize() {
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
-},{"./location":3}],2:[function(require,module,exports){
+},{"./configuration":2,"./location":4}],2:[function(require,module,exports){
+
+exports.port = 8080
+exports.id = 'localhost'
+exports.useModel = true
+
+},{}],3:[function(require,module,exports){
 
 var Converter = {
     pi: Math.PI,
@@ -513,11 +520,11 @@ var Converter = {
 
 module.exports = Converter;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 // For more information http://diveintohtml5.info/geolocation.html
 
-var ws = new WebSocket("ws://188.226.176.165:8080");
-//var ws = new WebSocket("ws://localhost:8080");
+//var ws = new WebSocket("ws://188.226.176.165:8080");
+var ws = new WebSocket("ws://localhost:8080");
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -540,18 +547,19 @@ var locationHandler = {
     errorThreshold: 10,
 
     // this variable stores the time (ms) to which the gps is used to check the position
-    gpsPollingTime: 1000,
+    gpsPollingTime: 6000,
 
     currentModel: null,
 
     init: function (map, useModelBased) {
         gmap = this.gmap || map; // initialize if gmap is null
         if (useModelBased) {
+            // wait a bit before starting (so that the socket is open)
             setTimeout( function() {
-                geoPosition.getCurrentPosition(
-                    locationHandler.successCallback,
-                    locationHandler.errorCallback,
-                    { enableHighAccuracy: true });
+                //navigator.geolocation.getCurrentPosition(
+                //    locationHandler.successCallback,
+                //    locationHandler.errorCallback,
+                //    { enableHighAccuracy: true });
                 locationHandler.lookupPosition();
             }, 1000);
         } else {
@@ -656,7 +664,7 @@ var locationHandler = {
             self.sendCoords(positionObj);
         } else {
             if (self.currentModel) {
-                console.log('yay! we have a model')
+                //console.log('yay! we have a model')
                 var predictedPosition = self.currentModel.nextPoint(positionObj.timestamp);
 
                 self.addPrediction(predictedPosition.latitude, predictedPosition.longitude);
@@ -674,14 +682,14 @@ var locationHandler = {
                 //console.log(predictedPosition)
 
                 console.log('distance: ' + distance)
-                console.log(predictedPosition)
+                //console.log(predictedPosition)
                 if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
                 } else {
                     self.sendLogs(predictedPosition)
                 }
             } else {
-                console.log(':( no model yet..  a sending a request...')
+                //console.log(':( no model yet..  a sending a request...')
                 self.requestModelUpdate(positionObj);
             }
 
@@ -726,7 +734,7 @@ var locationHandler = {
 
 module.exports = locationHandler;
 
-},{"./model":4}],4:[function(require,module,exports){
+},{"./model":5}],5:[function(require,module,exports){
 var converter = require('./converter');
 
 var Model = {
@@ -779,7 +787,7 @@ var Model = {
 //        } else {
         delta_t = (latLon2.timestamp - latLon1.timestamp) / 1000; // convert to seconds
         delta_s = this.computeDistanceBetweenLatLon(latLon1, latLon2);
-        console.log("delta_s" + delta_s)
+        // console.log("delta_s" + delta_s)
         this.speed = delta_s / delta_t;
 
         if (this.speed == 0) {
@@ -825,17 +833,17 @@ var Model = {
     },
 
     nextPoint: function (timestamp) {
-        console.log('computing next point...')
+        //console.log('computing next point...')
 
         var time = (timestamp - this.last_timestamp) / 1000;
         var space = this.speed * time;
-        console.log('time - speed - space')
-        console.log(this.last_timestamp)
-        console.log(time)
-        console.log(this.speed)
-        console.log(space)
-        console.log(Math.cos(this.angle))
-        console.log(Math.sin(this.angle))
+        //console.log('time - speed - space')
+        //console.log(this.last_timestamp)
+        //console.log(time)
+        //console.log(this.speed)
+        //console.log(space)
+        //console.log(Math.cos(this.angle))
+        //console.log(Math.sin(this.angle))
 
         var next_x = this.x_last + space*Math.cos(this.angle);
         var next_y = this.y_last + space*Math.sin(this.angle);
@@ -845,4 +853,4 @@ var Model = {
 
 module.exports = Model;
 
-},{"./converter":2}]},{},[1]);
+},{"./converter":3}]},{},[1]);
