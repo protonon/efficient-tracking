@@ -24,7 +24,7 @@ var locationHandler = {
     errorThreshold: 10,
 
     // this variable stores the time (ms) to which the gps is used to check the position
-    gpsPollingTime: 1000,
+    gpsPollingTime: 5000,
 
     currentModel: null,
 
