@@ -527,6 +527,9 @@ module.exports = Converter;
 //var ws = new WebSocket("ws://localhost:8080");
 var config = require('./configuration')
 var ws = new WebSocket("ws://" + config.ip + ":" + config.port)
+var ws_log = new WebSocket("ws://" + config.ip + ":" + config.port)
+//var ws_distance = new WebSocket("ws://" + config.ip + ":" + config.port)
+
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -541,6 +544,7 @@ var locationHandler = {
     counter: 0,
     seq_number: 0,
     maxDistance: 1000,
+    error: 0,
 
     // this variable is crucial for the application. The client will communicate
     // a new position to the server if the predicted position and the current position
@@ -549,7 +553,7 @@ var locationHandler = {
     errorThreshold: 10,
 
     // this variable stores the time (ms) to which the gps is used to check the position
-    gpsPollingTime: 6000,
+    gpsPollingTime: 1000,
 
     currentModel: null,
 
@@ -557,13 +561,19 @@ var locationHandler = {
         gmap = this.gmap || map; // initialize if gmap is null
         if (useModelBased) {
             // wait a bit before starting (so that the socket is open)
-            setTimeout( function() {
+            //setTimeout( function() {
                 //navigator.geolocation.getCurrentPosition(
                 //    locationHandler.successCallback,
                 //    locationHandler.errorCallback,
                 //    { enableHighAccuracy: true });
-                locationHandler.lookupPosition();
-            }, 1000);
+            //}, 1000);
+            //locationHandler.lookupPosition();
+
+            navigator.geolocation.watchPosition(
+                locationHandler.successCallback,
+                locationHandler.errorCallback,
+                { enableHighAccuracy: true }
+            )
         } else {
             navigator.geolocation.watchPosition(
                 locationHandler.watchPositionSuccessCallback,
@@ -575,6 +585,7 @@ var locationHandler = {
     lookupPosition: function () {
         // emulate watchPosition(), for this experiment we need getCurrentPosition() (or do we?)
         setInterval( function() {
+            console.log("setInterval")
             geoPosition.getCurrentPosition(
                 locationHandler.successCallback,
                 locationHandler.errorCallback,
@@ -687,15 +698,26 @@ var locationHandler = {
                 //console.log(predictedPosition)
                 if (distance > self.errorThreshold) {
                     self.requestModelUpdate(positionObj);
-                } else {
-                    self.sendLogs(predictedPosition)
                 }
+                self.distance += distance
+                //else
+                //{
+                //    self.sendLogs(predictedPosition)
+                //}
             } else {
                 //console.log(':( no model yet..  a sending a request...')
                 self.requestModelUpdate(positionObj);
             }
 
         }
+
+        // send on another websocket the logs
+        ws_log.send(JSON.stringify({
+            type: 'log',
+            position: position
+        }))
+
+        // add marker
         self.addMarker(position);
     },
 
