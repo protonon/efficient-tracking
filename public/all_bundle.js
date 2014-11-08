@@ -672,6 +672,15 @@ var locationHandler = {
             speed: position.coords.speed
         }
 
+        // send on another websocket the logs
+        ws_log.send(JSON.stringify({
+            type: 'log',
+            position: position
+        }))
+
+        // add marker
+        self.addMarker(position);
+
         if (self.counter < 2) {
             self.counter += 1;
             self.sendCoords(positionObj);
@@ -710,15 +719,6 @@ var locationHandler = {
             }
 
         }
-
-        // send on another websocket the logs
-        ws_log.send(JSON.stringify({
-            type: 'log',
-            position: position
-        }))
-
-        // add marker
-        self.addMarker(position);
     },
 
     // compute the distance in meters
