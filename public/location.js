@@ -1,7 +1,9 @@
 // For more information http://diveintohtml5.info/geolocation.html
 
 //var ws = new WebSocket("ws://188.226.176.165:8080");
-var ws = new WebSocket("ws://localhost:8080");
+//var ws = new WebSocket("ws://localhost:8080");
+var config = require('./configuration')
+var ws = new WebSocket("ws://" + config.ip + ":" + config.port)
 var model = require('./model');
 
 ws.onmessage =  function(message) {

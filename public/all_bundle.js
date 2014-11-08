@@ -23,7 +23,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 },{"./configuration":2,"./location":4}],2:[function(require,module,exports){
 
 exports.port = 8080
-exports.id = 'localhost'
+exports.ip = 'localhost'
 exports.useModel = true
 
 },{}],3:[function(require,module,exports){
@@ -524,7 +524,9 @@ module.exports = Converter;
 // For more information http://diveintohtml5.info/geolocation.html
 
 //var ws = new WebSocket("ws://188.226.176.165:8080");
-var ws = new WebSocket("ws://localhost:8080");
+//var ws = new WebSocket("ws://localhost:8080");
+var config = require('./configuration')
+var ws = new WebSocket("ws://" + config.ip + ":" + config.port)
 var model = require('./model');
 
 ws.onmessage =  function(message) {
@@ -734,7 +736,7 @@ var locationHandler = {
 
 module.exports = locationHandler;
 
-},{"./model":5}],5:[function(require,module,exports){
+},{"./configuration":2,"./model":5}],5:[function(require,module,exports){
 var converter = require('./converter');
 
 var Model = {
