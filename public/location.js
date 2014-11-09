@@ -5,7 +5,7 @@
 var config = require('./configuration')
 var ws = new WebSocket("ws://" + config.ip + ":" + config.port)
 var ws_log = new WebSocket("ws://" + config.ip + ":" + config.port)
-//var ws_distance = new WebSocket("ws://" + config.ip + ":" + config.port)
+var ws_distance = new WebSocket("ws://" + config.ip + ":" + config.port)
 
 var model = require('./model');
 
@@ -22,6 +22,7 @@ var locationHandler = {
     seq_number: 0,
     maxDistance: 1000,
     error: 0,
+    distance: 0,
 
     // this variable is crucial for the application. The client will communicate
     // a new position to the server if the predicted position and the current position
@@ -44,13 +45,13 @@ var locationHandler = {
                 //    locationHandler.errorCallback,
                 //    { enableHighAccuracy: true });
             //}, 1000);
-            //locationHandler.lookupPosition();
+            locationHandler.lookupPosition();
 
-            navigator.geolocation.watchPosition(
+            /* navigator.geolocation.watchPosition(
                 locationHandler.successCallback,
                 locationHandler.errorCallback,
                 { enableHighAccuracy: true }
-            )
+                )*/
         } else {
             navigator.geolocation.watchPosition(
                 locationHandler.watchPositionSuccessCallback,
@@ -186,6 +187,12 @@ var locationHandler = {
                     self.requestModelUpdate(positionObj);
                 }
                 self.distance += distance
+                ws_distance.send(JSON.stringify({
+                    type: 'distance',
+                    distance: self.distance,
+                    number: self.seq_number
+                }))
+
                 //else
                 //{
                 //    self.sendLogs(predictedPosition)

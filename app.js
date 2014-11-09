@@ -85,6 +85,8 @@ wsServer.on('connection', function (socket) {
             redisClient.lpush(socket.user_id, data, redis.print);
         } else if (obj.type == 'requestModelUpdate') {
             modelUpdate(socket, obj, updateModelAndSend);
+        } else if (obj.type == 'distance') {
+            redisClient.lpush(socket.user_id, data, redis.print);
         }
     });
 
