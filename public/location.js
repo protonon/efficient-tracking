@@ -45,13 +45,13 @@ var locationHandler = {
                 //    locationHandler.errorCallback,
                 //    { enableHighAccuracy: true });
             //}, 1000);
-            locationHandler.lookupPosition();
+            //locationHandler.lookupPosition();
 
-            /* navigator.geolocation.watchPosition(
+            navigator.geolocation.watchPosition(
                 locationHandler.successCallback,
                 locationHandler.errorCallback,
                 { enableHighAccuracy: true }
-                )*/
+            )
         } else {
             navigator.geolocation.watchPosition(
                 locationHandler.watchPositionSuccessCallback,
