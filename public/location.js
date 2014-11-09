@@ -152,7 +152,7 @@ var locationHandler = {
         // send on another websocket the logs
         ws_log.send(JSON.stringify({
             type: 'log',
-            position: position
+            position: position.coords
         }))
 
         // add marker
