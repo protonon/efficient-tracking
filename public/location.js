@@ -103,6 +103,7 @@ var locationHandler = {
             position: myLatlng,
             map: gmap
         });
+        marker.setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png")
         locationHandler.markers.push(marker);
     },
 
@@ -110,12 +111,9 @@ var locationHandler = {
         var myLatlng = new google.maps.LatLng(lat, lon);
         var marker = new google.maps.Marker({
             position: myLatlng,
-            map: gmap,
-            icon: {
-                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                scale: 10
-            }
+            map: gmap
         });
+        marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png")
         locationHandler.predictions.push(marker);
     },
 
